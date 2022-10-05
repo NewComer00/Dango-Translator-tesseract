@@ -22,7 +22,7 @@ pip install 包名称 -i https://mirrors.ustc.edu.cn/pypi/web/simple
 我们即将安装一系列的Python包，为了让这些包和外界环境隔离，建议使用虚拟环境。如下命令执行完毕后，会在Windows的`C:\Users\用户名\`目录下创建一个`app_env`文件夹，里面存放着一个独立的Python虚拟环境。
 ```
 pip install virtualenv
-virtualenv ~/app_env
+virtualenv $HOME/app_env
 cd ~/app_env
 ```
 
@@ -57,5 +57,5 @@ python ./app.py
 ## 再次运行
 首次安装完成后，如需再次运行，请打开`PowerShell`输入以下命令：
 ```
-cd ~/app_env; ./Scripts/activate; python ./Dango-Translator-tesseract/app.py
+cd ~/app_env; ./Scripts/activate; cd ./Dango-Translator-tesseract; python ./app.py
 ```
