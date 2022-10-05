@@ -4,6 +4,7 @@ import os
 
 import translator.ocr.dango
 import translator.ocr.baidu
+import translator.ocr.tesseract
 import translator.api
 import utils.http
 import utils.thread
@@ -134,5 +135,23 @@ def testBaiduOCR(object) :
 
     translator.ocr.baidu.getAccessToken(object)
     ocr_sign, original = translator.ocr.baidu.baiduOCR(object.config, object.logger, test=True)
+    object.settin_ui.desc_ui.desc_text.append("\n识别结果: \n{}".format(original))
+    object.settin_ui.desc_ui.desc_text.append("\n测试结束!")
+
+# 测试tesseract OCR
+def testTesseractOCR(object) :
+
+    TEST_IMAGE_PATH = os.path.join(os.getcwd(), "config", "other", "image_rus.jpg")
+
+    # 测试信息显示窗
+    object.settin_ui.desc_ui = ui.desc.Desc(object)
+    object.settin_ui.desc_ui.setWindowTitle("tesseract OCR测试")
+    object.settin_ui.desc_ui.desc_text.append("\n请将Tesseract识别语言设置为rus俄语")
+    object.settin_ui.desc_ui.desc_text.append("\n开始测试...")
+    object.settin_ui.desc_ui.desc_text.insertHtml('<img src={} width="{}" >'.format(TEST_IMAGE_PATH, 245 * object.settin_ui.rate))
+    object.settin_ui.desc_ui.show()
+    QApplication.processEvents()
+
+    ocr_sign, original = translator.ocr.tesseract.tesseractOCR(object.config, object.logger, test=True)
     object.settin_ui.desc_ui.desc_text.append("\n识别结果: \n{}".format(original))
     object.settin_ui.desc_ui.desc_text.append("\n测试结束!")

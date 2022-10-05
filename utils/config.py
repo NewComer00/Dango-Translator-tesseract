@@ -110,6 +110,12 @@ def configConvert(object) :
     object.config["OCR"]["highPrecision"] = object.config["OCR"].get("highPrecision", False)
     # 翻译语种
     object.config["language"] = object.config.get("language", "JAP")
+    # tesseract OCR开关
+    object.config["tesseractOCR"] = object.config.get("tesseractOCR", False)
+    # tesseract OCR路径
+    object.config["tesseractPath"] = object.config.get("tesseractPath", "")
+    # tesseract OCR语言
+    object.config["tesseractLang"] = object.config.get("tesseractLang", "ru")
 
     ################### 翻译设定 ###################
     # 字体颜色

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from traceback import format_exc
 import qtawesome
 import webbrowser
+import pytesseract
 import os
 import re
 
@@ -266,14 +267,17 @@ class Settin(QMainWindow) :
         button.clicked.connect(lambda: self.showDesc("OCR"))
         button.setCursor(self.question_pixmap)
 
+        # ========== 本地OCR交互组件块 ==========
+        # 组件块的左上角基础位置
+        block_base = (20, 25)
         # 本地OCR标签
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 20, 25, 60, 20)
+        self.customSetGeometry(label, block_base[0], block_base[1], 60, 20)
         label.setText("本地OCR")
 
         # 本地OCR说明按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 80, 25, 25, 20)
+        self.customSetGeometry(button, block_base[0] + 60, block_base[1], 25, 20)
         button.setStyleSheet("color: %s; font-size: 9pt; background: transparent;"%self.color_2)
         button.setText("说明")
         button.clicked.connect(lambda: self.showDesc("offlineOCR"))
@@ -282,52 +286,56 @@ class Settin(QMainWindow) :
         # 本地OCR说明?号图标
         button = QPushButton(qtawesome.icon("fa.question-circle", color=self.color_2), "", self.tab_1)
         self.customSetIconSize(button, 20, 20)
-        self.customSetGeometry(button, 105, 25, 20, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1], 20, 20)
         button.setStyleSheet("background: transparent;")
         button.clicked.connect(lambda: self.showDesc("offlineOCR"))
         button.setCursor(self.question_pixmap)
 
         # 本地OCR备注
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 145, 25, 300, 20)
+        self.customSetGeometry(label, block_base[0] + 125, block_base[1], 300, 20)
         label.setText("如果安装失败建议直接使用在线OCR")
         label.setStyleSheet("color: %s" % self.color_2)
 
         # 本地OCR状态开关
         self.offline_ocr_switch = ui.switch.OfflineSwitch(self.tab_1, sign=self.offline_ocr_use, startX=(65-20)*self.rate, object=self.object)
-        self.customSetGeometry(self.offline_ocr_switch, 20, 60, 65, 20)
+        self.customSetGeometry(self.offline_ocr_switch, block_base[0], block_base[1] + 35, 65, 20)
         self.offline_ocr_switch.checkedChanged.connect(self.changeOfflineSwitch)
         self.offline_ocr_switch.setCursor(self.select_pixmap)
 
         # 本地OCR运行按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 105, 60, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1] + 35, 60, 20)
         button.setText("运行")
         button.clicked.connect(self.runOfflineOCR)
         button.setCursor(self.select_pixmap)
 
         # 本地OCR测试按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 185, 60, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 165, block_base[1] + 35, 60, 20)
         button.setText("测试")
         button.clicked.connect(self.testOfflineOCR)
         button.setCursor(self.select_pixmap)
 
         # 本地OCR教程按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 265, 60, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 245, block_base[1] + 35, 60, 20)
         button.setText("教程")
         button.clicked.connect(self.openOfflineOCRTutorial)
         button.setCursor(self.select_pixmap)
+        # ========== 交互组件块结束 ==========
 
+        # ========== 在线OCR交互组件块 ==========
+        # 组件块的左上角基础位置
+        block_base = (20, 100)
         # 在线OCR标签
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 20, 120, 60, 20)
+        self.customSetGeometry(label, block_base[0], block_base[1], 60, 20)
         label.setText("在线OCR")
 
         # 在线OCR说明按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 80, 120, 25, 20)
+        self.customSetGeometry(button, block_base[0] + 60, block_base[1], 25, 20)
         button.setStyleSheet("color: %s; font-size: 9pt; background: transparent;"%self.color_2)
         button.setText("说明")
         button.clicked.connect(lambda: self.showDesc("onlineOCR"))
@@ -336,60 +344,64 @@ class Settin(QMainWindow) :
         # 在线OCR说明?号图标
         button = QPushButton(qtawesome.icon("fa.question-circle", color=self.color_2), "", self.tab_1)
         self.customSetIconSize(button, 20, 20)
-        self.customSetGeometry(button, 105, 120, 20, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1], 20, 20)
         button.setStyleSheet("background: transparent;")
         button.clicked.connect(lambda: self.showDesc("onlineOCR"))
         button.setCursor(self.question_pixmap)
 
         # 在线OCR备注
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 145, 120, 300, 20)
+        self.customSetGeometry(label, block_base[0] + 125, block_base[1], 300, 20)
         label.setText("精度高, 无限调用次数, 建议使用")
         label.setStyleSheet("color: %s" % self.color_2)
 
         # 在线OCR状态开关
         self.online_ocr_switch = ui.switch.SwitchOCR(self.tab_1, self.online_ocr_use, startX=(65-20)*self.rate)
-        self.customSetGeometry(self.online_ocr_switch, 20, 155, 65, 20)
+        self.customSetGeometry(self.online_ocr_switch, block_base[0], block_base[1] + 35, 65, 20)
         self.online_ocr_switch.checkedChanged.connect(self.changeOnlineSwitch)
         self.online_ocr_switch.setCursor(self.select_pixmap)
 
         # 在线OCR购买按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 105, 155, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1] + 35, 60, 20)
         button.setText("购买")
         button.clicked.connect(self.openDangoBuyPage)
         button.setCursor(self.select_pixmap)
 
         # 在线OCR测试按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 185, 155, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 165, block_base[1] + 35, 60, 20)
         button.setText("测试")
         button.clicked.connect(lambda: utils.test.testOnlineOCR(self.object))
         button.setCursor(self.select_pixmap)
 
         # 在线OCR教程按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 265, 155, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 245, block_base[1] + 35, 60, 20)
         button.setText("教程")
         button.clicked.connect(self.openOnlineOCRTutorials)
         button.setCursor(self.select_pixmap)
 
         # 节点下拉框
         self.node_info_comboBox = QComboBox(self.tab_1)
-        self.customSetGeometry(self.node_info_comboBox, 345, 155, 150, 20)
+        self.customSetGeometry(self.node_info_comboBox, block_base[0] + 325, block_base[1] + 35, 150, 20)
         self.node_info_comboBox.setStyleSheet("QComboBox{color: %s}"%self.color_2)
         self.node_info_comboBox.setCursor(self.select_pixmap)
         # 获取节点信息
         utils.thread.createThread(self.getNodeInfo)
+        # ========== 交互组件块结束 ==========
 
+        # ========== 百度OCR交互组件块 ==========
+        # 组件块的左上角基础位置
+        block_base = (20, 175)
         # 百度OCR标签
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 20, 215, 60, 20)
+        self.customSetGeometry(label, block_base[0], block_base[1], 60, 20)
         label.setText("百度OCR")
 
         # 百度OCR说明标签
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 80, 215, 25, 20)
+        self.customSetGeometry(button, block_base[0] + 60, block_base[1], 25, 20)
         button.setStyleSheet("color: %s; font-size: 9pt; background: transparent;"%self.color_2)
         button.setText("说明")
         button.clicked.connect(lambda: self.showDesc("baiduOCR"))
@@ -398,52 +410,56 @@ class Settin(QMainWindow) :
         # 百度OCR说明?号图标
         button = QPushButton(qtawesome.icon("fa.question-circle", color=self.color_2), "", self.tab_1)
         self.customSetIconSize(button, 20, 20)
-        self.customSetGeometry(button, 105, 215, 20, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1], 20, 20)
         button.setStyleSheet("background: transparent;")
         button.clicked.connect(lambda: self.showDesc("baiduOCR"))
         button.setCursor(self.question_pixmap)
 
         # 百度OCR备注
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 145, 215, 300, 20)
+        self.customSetGeometry(label, block_base[0] + 125, block_base[1], 300, 20)
         label.setText("老用户专用, 精度虽高但价格昂贵")
         label.setStyleSheet("color: %s" % self.color_2)
 
         # 百度OCR状态开关
         self.baidu_ocr_switch = ui.switch.BaiduSwitchOCR(self.tab_1, self.baidu_ocr_use, startX=(65-20)*self.rate, object=self.object)
-        self.customSetGeometry(self.baidu_ocr_switch, 20, 250, 65, 20)
+        self.customSetGeometry(self.baidu_ocr_switch, block_base[0], block_base[1] + 35, 65, 20)
         self.baidu_ocr_switch.checkedChanged.connect(self.changeBaiduSwitch)
         self.baidu_ocr_switch.setCursor(self.select_pixmap)
 
         # 百度OCR密钥按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 105, 250, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1] + 35, 60, 20)
         button.setText("密钥")
         button.clicked.connect(lambda: self.showKey("baiduOCR"))
         button.setCursor(self.select_pixmap)
 
         # 百度OCR测试按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 185, 250, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 165, block_base[1] + 35, 60, 20)
         button.setText("测试")
         button.clicked.connect(lambda: utils.test.testBaiduOCR(self.object))
         button.setCursor(self.select_pixmap)
 
         # 百度OCR教程按钮
         button = QPushButton(self.tab_1)
-        self.customSetGeometry(button, 265, 250, 60, 20)
+        self.customSetGeometry(button, block_base[0] + 245, block_base[1] + 35, 60, 20)
         button.setText("教程")
         button.clicked.connect(self.openBaiduOCRTutorials)
         button.setCursor(self.select_pixmap)
+        # ========== 交互组件块结束 ==========
 
+        # ========== OCR识别语种交互组件块 ==========
+        # 组件块的左上角基础位置
+        block_base = (20, 250)
         # OCR识别语种标签
         label = QLabel(self.tab_1)
-        self.customSetGeometry(label, 20, 310, 150, 20)
+        self.customSetGeometry(label, block_base[0], block_base[1], 150, 20)
         label.setText("选择要翻译的原语种:")
 
         # OCR识别语种comboBox
         self.language_comboBox = QComboBox(self.tab_1)
-        self.customSetGeometry(self.language_comboBox, 160, 310, 130, 20)
+        self.customSetGeometry(self.language_comboBox, block_base[0] + 140, block_base[1], 130, 20)
         self.language_comboBox.addItem("")
         self.language_comboBox.addItem("")
         self.language_comboBox.addItem("")
@@ -458,7 +474,79 @@ class Settin(QMainWindow) :
             self.language_comboBox.setCurrentIndex(2)
         else:
             self.language_comboBox.setCurrentIndex(0)
+        # ========== 交互组件块结束 ==========
 
+        # ========== tesseract OCR交互组件块 ==========
+        # 组件块的左上角基础位置
+        block_base = (20, 300)
+        # tesseract OCR标签
+        label = QLabel(self.tab_1)
+        self.customSetGeometry(label, block_base[0], block_base[1], 60, 20)
+        label.setText("Tesseract")
+
+        # tesseract OCR说明按钮
+        button = QPushButton(self.tab_1)
+        self.customSetGeometry(button, block_base[0] + 60, block_base[1], 25, 20)
+        button.setStyleSheet("color: %s; font-size: 9pt; background: transparent;"%self.color_2)
+        button.setText("说明")
+        button.clicked.connect(lambda: self.showDesc("tesseractOCR"))
+        button.setCursor(self.question_pixmap)
+
+        # tesseract OCR说明?号图标
+        button = QPushButton(qtawesome.icon("fa.question-circle", color=self.color_2), "", self.tab_1)
+        self.customSetIconSize(button, 20, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1], 20, 20)
+        button.setStyleSheet("background: transparent;")
+        button.clicked.connect(lambda: self.showDesc("tesseractOCR"))
+        button.setCursor(self.question_pixmap)
+
+        # tesseract OCR备注
+        label = QLabel(self.tab_1)
+        self.customSetGeometry(label, block_base[0] + 125, block_base[1], 330, 20)
+        label.setText("使用本地的Tesseract OCR引擎,请先阅读“说明”与“教程”")
+        label.setStyleSheet("color: %s" % self.color_2)
+
+        # tesseract识别语种标签
+        label = QLabel(self.tab_1)
+        self.customSetGeometry(label, block_base[0] + 325, block_base[1] + 35, 150, 20)
+        label.setText("Tesseract识别语言:")
+
+        # tesseract可用语言下拉框
+        self.tesseract_lang_comboBox = QComboBox(self.tab_1)
+        self.customSetGeometry(self.tesseract_lang_comboBox, block_base[0] + 465, block_base[1] + 35, 80, 20)
+        self.tesseract_lang_comboBox.setStyleSheet("QComboBox{color: %s}"%self.color_2)
+        self.tesseract_lang_comboBox.setCursor(self.select_pixmap)
+        self.tesseract_lang_comboBox.currentTextChanged.connect(self.changeTesseractLang)
+
+        # tesseract OCR状态开关
+        self.tesseract_ocr_switch = ui.switch.SwitchOCR(self.tab_1, self.tesseract_ocr_use, startX=(65-20)*self.rate)
+        self.customSetGeometry(self.tesseract_ocr_switch, block_base[0], block_base[1] + 35, 65, 20)
+        self.tesseract_ocr_switch.checkedChanged.connect(self.changeTesseractSwitch)
+        self.tesseract_ocr_switch.setCursor(self.select_pixmap)
+        if self.tesseract_ocr_use == True:
+            self.tesseract_ocr_switch.checkedChanged.emit(True)
+
+        # tesseract OCR设置路径按钮
+        button = QPushButton(self.tab_1)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1] + 35, 60, 20)
+        button.setText("路径")
+        button.clicked.connect(self.showTesseractPath)
+        button.setCursor(self.select_pixmap)
+
+        # tesseract OCR测试按钮
+        button = QPushButton(self.tab_1)
+        self.customSetGeometry(button, block_base[0] + 165, block_base[1] + 35, 60, 20)
+        button.setText("测试")
+        button.clicked.connect(self.testTesseractOCR)
+        button.setCursor(self.select_pixmap)
+
+        # tesseract OCR教程按钮
+        button = QPushButton(self.tab_1)
+        self.customSetGeometry(button, block_base[0] + 245, block_base[1] + 35, 60, 20)
+        button.setText("教程")
+        button.clicked.connect(lambda: self.showDesc("tesseractOCRTutorial"))
+        button.setCursor(self.select_pixmap)
+        # ========== 交互组件块结束 ==========
 
     # 翻译设定标签栏
     def setTabTwo(self) :
@@ -1582,6 +1670,7 @@ class Settin(QMainWindow) :
         self.online_ocr_use = self.object.config["onlineOCR"]
         self.baidu_ocr_use = self.object.config["baiduOCR"]
         self.baidu_ocr_high_precision_use = self.object.config["OCR"]["highPrecision"]
+        self.tesseract_ocr_use = self.object.config["tesseractOCR"]
 
         # 公共有道翻译开关
         self.youdao_use = eval(self.object.config["youdaoUse"])
@@ -1748,6 +1837,70 @@ class Settin(QMainWindow) :
             self.object.config["nodeURL"] = self.object.yaml["dict_info"]["ocr_server"]
         self.node_info_comboBox.currentIndexChanged.connect(self.changeNodeInfo)
 
+    # 检查tesseract是否可以运行
+    def checkTesseractRunnable(self) :
+        err_msg = ""
+        # 若tesseractPath未指定，不予运行
+        if self.object.config["tesseractPath"] == "" :
+            err_msg = "未指定有效的Tesseract可执行文件路径。\
+                    请先点击“路径”按钮，选择Tesseract的可执行文件所在位置"
+        else :
+            # 若tesseractPath已经指定，但尝试运行tesseract时出现问题
+            try :
+                pytesseract.pytesseract.tesseract_cmd = self.object.config["tesseractPath"]
+                tess_lang_list = pytesseract.get_languages()
+            except pytesseract.pytesseract.TesseractNotFoundError :
+                err_msg = "没有在指定路径处找到Tesseract的可执行文件。\
+                        请点击“路径”按钮，重新选择Tesseract的可执行文件所在位置"
+            except Exception as err :
+                err_msg = "pytesseract出现问题：\n" + err
+
+        # 如果发生了错误，弹窗展示错误信息
+        if err_msg != "" :
+            # 运行到这一步时，判断翻译界面是否是隐藏着的
+            # 这会影响之后报错弹窗的表现
+            hidden = True
+            if not self.object.translation_ui.isHidden() :
+                hidden = False
+            # 弹窗展示错误信息
+            if not hidden :
+                self.object.translation_ui.hide()
+            error_dialog = QErrorMessage()
+            error_dialog.showMessage(err_msg)
+            error_dialog.exec_()
+            if not hidden :
+                self.object.translation_ui.show()
+            return False
+        # 所有测试均通过，可以运行
+        else :
+            return True
+
+    def changeTesseractLang(self) :
+        self.object.config["tesseractLang"] = self.tesseract_lang_comboBox.currentText()
+
+    def getTesseractLang(self) :
+        # 以下过程停止发送信号，防止触发changeTesseractLang
+        self.tesseract_lang_comboBox.blockSignals(True)
+
+        self.tesseract_lang_comboBox.clear()
+        tess_lang_list = []
+
+        pytesseract.pytesseract.tesseract_cmd = self.object.config["tesseractPath"]
+        tess_lang_list = pytesseract.get_languages()
+
+        self.tesseract_lang_comboBox.setMaxVisibleItems(len(tess_lang_list))
+        model = self.tesseract_lang_comboBox.model()
+        for lang in tess_lang_list :
+            entry = QStandardItem(lang)
+            model.appendRow(entry)
+
+        # 默认选择上一次的选项
+        if self.object.config["tesseractLang"] in tess_lang_list :
+            self.tesseract_lang_comboBox.setCurrentText(
+                    self.object.config["tesseractLang"])
+
+        # 恢复发送信号
+        self.tesseract_lang_comboBox.blockSignals(False)
 
     # 根据分辨率定义控件位置尺寸
     def customSetGeometry(self, object, x, y, w, h) :
@@ -1788,6 +1941,8 @@ class Settin(QMainWindow) :
                 self.resetSwitch("onlineOCR")
             if self.baidu_ocr_use == True :
                 self.resetSwitch("baiduOCR")
+            if self.tesseract_ocr_use == True :
+                self.resetSwitch("tesseractOCR")
             self.offline_ocr_use = True
         else:
             self.offline_ocr_use = False
@@ -1801,6 +1956,8 @@ class Settin(QMainWindow) :
                 self.resetSwitch("offlineOCR")
             if self.baidu_ocr_use == True :
                 self.resetSwitch("baiduOCR")
+            if self.tesseract_ocr_use == True :
+                self.resetSwitch("tesseractOCR")
             self.online_ocr_use = True
         else:
             self.online_ocr_use = False
@@ -1814,9 +1971,33 @@ class Settin(QMainWindow) :
                 self.resetSwitch("offlineOCR")
             if self.online_ocr_use == True :
                 self.resetSwitch("onlineOCR")
+            if self.tesseract_ocr_use == True :
+                self.resetSwitch("tesseractOCR")
             self.baidu_ocr_use = True
         else :
             self.baidu_ocr_use = False
+
+    # 改变tesseract OCR开关状态
+    def changeTesseractSwitch(self, checked) :
+
+        if checked :
+            # 先检查tesseract是否可以运行
+            if self.checkTesseractRunnable() == False :
+                # 不能运行，关闭OCR开关
+                self.resetSwitch("tesseractOCR")
+                return
+            # 可以运行，获取本地tesseract支持的语言
+            self.getTesseractLang()
+
+            if self.offline_ocr_use == True :
+                self.resetSwitch("offlineOCR")
+            if self.online_ocr_use == True :
+                self.resetSwitch("onlineOCR")
+            if self.baidu_ocr_use == True :
+                self.resetSwitch("baiduOCR")
+            self.tesseract_ocr_use = True
+        else:
+            self.tesseract_ocr_use = False
 
 
     # 改变百度OCR高精度开关状态
@@ -2053,6 +2234,9 @@ class Settin(QMainWindow) :
         elif switch_type == "baiduOCR" :
             self.baidu_ocr_switch.mousePressEvent(1)
             self.baidu_ocr_switch.updateValue()
+        elif switch_type == "tesseractOCR" :
+            self.tesseract_ocr_switch.mousePressEvent(1)
+            self.tesseract_ocr_switch.updateValue()
 
 
     # 运行本地OCR
@@ -2331,6 +2515,29 @@ class Settin(QMainWindow) :
             self.desc_ui.desc_text.append("2. 不免费, 且价格较贵;")
             self.desc_ui.desc_text.append("\n详细使用方式见教程.")
 
+        # Tesseract OCR说明
+        elif message_type == "tesseractOCR":
+            self.desc_ui.setWindowTitle("Tesseract OCR说明")
+            self.desc_ui.desc_text.append("\n使用久经考验的Tesseract离线OCR引擎,最多支持超过一百种语言的识别.")
+            self.desc_ui.desc_text.append("遇到团子官方支持以外的语言时,可以使用该OCR引擎进行识别.")
+            self.desc_ui.desc_text.append("\n* 注: 使用Tesseract OCR时,请使用私人翻译接口,暂未适配公共翻译,敬请包涵~")
+            self.desc_ui.desc_text.append("* 注: 目前暂不支持贴字和语音等高级功能,正在开发中...")
+            self.desc_ui.desc_text.append("\nTesseract项目官网:\nhttps://tesseract-ocr.github.io/")
+
+        # Tesseract OCR教程
+        elif message_type == "tesseractOCRTutorial":
+            self.desc_ui.setWindowTitle("Tesseract OCR教程")
+            self.desc_ui.desc_text.append("\n1. 以Windows系统为例,访问以下网址,获取最新Tesseract的下载链接,下载Windows Tesseract安装包.")
+            self.desc_ui.desc_text.append("https://github.com/UB-Mannheim/tesseract/wiki#tesseract-installer-for-windows")
+            self.desc_ui.desc_text.append("\n2. 运行Tesseract安装包,选择用英语进行安装(因为安装程序不支持中文).")
+            self.desc_ui.desc_text.append("安装程序进行到“Choose Components”这一步时,展开右侧最下方的“Additional language data”,选中需要的OCR语言包(英语OCR是默认有的).")
+            self.desc_ui.desc_text.append("\n3. 在安装过程中请记住安装的位置.安装完毕后重启团子翻译器,然后点击“路径”按钮,在其中找到刚才安装位置下的tesseract.exe,选择它.")
+            self.desc_ui.desc_text.append("\n4. 指定完毕后,打开Tesseract OCR开关.此时右侧的语言下拉框应当出现若干语言供您选择,选中想要识别的语言.")
+            self.desc_ui.desc_text.append("\n5. 进入“翻译设定”,请使用“私人翻译”接口,目前暂不支持“公共翻译”.")
+            self.desc_ui.desc_text.append("\n6. 需要额外添加新的语言支持包?Tesseract所有的语言包都托管于Github,文件格式为“语言名.traineddata”.")
+            self.desc_ui.desc_text.append("下载语言包文件后,将其放入Tesseract安装位置下的“tessdata”文件夹,重启团子翻译器后生效.")
+            self.desc_ui.desc_text.append("https://github.com/tesseract-ocr/tessdata/")
+
         # 公共翻译说明
         elif message_type == "publicTranslate" :
             self.desc_ui.setWindowTitle("公共翻译说明")
@@ -2463,6 +2670,26 @@ class Settin(QMainWindow) :
 
         self.key_ui.show()
 
+    # 输入tesseract路径窗口
+    def showTesseractPath(self) :
+        filename, _ = QFileDialog.getOpenFileName(self, "选择tesseract可执行文件")
+        self.object.config["tesseractPath"] = filename
+
+        # 若测试tesseract启动失败，关闭使用tesseractOCR的开关
+        if self.checkTesseractRunnable() == False :
+            if self.tesseract_ocr_use == True :
+                self.resetSwitch("tesseractOCR")
+        else :
+            # 若测试成功，重新获取tesseract支持的所有语言
+            self.getTesseractLang()
+
+    # 按下“测试”按钮后，准备测试tesseractOCR
+    def testTesseractOCR(self) :
+        if self.checkTesseractRunnable() == False :
+            if self.tesseract_ocr_use == True :
+                self.resetSwitch("tesseractOCR")
+        else :
+            utils.test.testTesseractOCR(self.object)
 
     # 翻译框透明度
     def changeHorizontal(self) :
@@ -2640,6 +2867,10 @@ class Settin(QMainWindow) :
         self.object.config["offlineOCR"] = self.offline_ocr_use
         self.object.config["onlineOCR"] = self.online_ocr_use
         self.object.config["baiduOCR"] = self.baidu_ocr_use
+        self.object.config["tesseractOCR"] = self.tesseract_ocr_use
+
+        # 记录选择的tesseract识别语言
+        self.object.config["tesseractLang"] = self.tesseract_lang_comboBox.currentText()
 
         # 翻译语种
         if self.language_comboBox.currentIndex() == 1 :

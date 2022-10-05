@@ -1,129 +1,61 @@
-# 团子翻译器 - 基于OCR的生肉翻译软件
+# 团子翻译器 + Tesseract OCR
+基于[2022年7月29日PantsuDango/Dango-Translator主线分支](https://github.com/PantsuDango/Dango-Translator/tree/14c8d0bfb4d1398a84331f7765c74a4ba9b6b274)的魔改版本，为团子翻译器添加了使用离线OCR引擎Tesseract的接口。  
+[Tesseract](https://github.com/tesseract-ocr/tesseract)是一款历史悠久的强大离线OCR引擎，可以识别[超过100种的语言](https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html)。现在用户可以使用团子翻译器中的Tesseract OCR来识别并翻译小语种了。
 
+## 示例图片
+> <img src="assets/tesseract_ui.jpg" alt="assets/tesseract_ui.jpg">
+> <img src="assets/tesseract_demo_rus1.jpg" alt="assets/tesseract_demo_rus1.jpg">
+> <img src="assets/tesseract_demo_rus2.jpg" alt="assets/tesseract_demo_rus2.jpg">
 
-[![最新版本](https://img.shields.io/badge/%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC-Ver4.2.7-ff69b4)](https://github.com/PantsuDango/Dango-Translator)
-[![更新时间](https://img.shields.io/badge/%E6%9B%B4%E6%96%B0%E6%97%B6%E9%97%B4-2022--07--11-ff69b4)]()
-[![更新时间](https://img.shields.io/badge/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-win7--10-ff69b4)]()
-[![GitHubStars](https://img.shields.io/github/stars/PantsuDango/Dango-Translator)]()
-[![GitHubForks](https://img.shields.io/github/forks/PantsuDango/Dango-Translator)]()
-[![作者](https://img.shields.io/badge/QQ-%E8%83%96%E6%AC%A1%E5%9B%A2%E5%AD%90-ff69b4)](https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/public/%E4%BD%9C%E8%80%85.png)
-[![群号](https://img.shields.io/badge/%E6%9C%80%E6%96%B0%E4%BA%A4%E6%B5%81%E7%BE%A4-18%E7%BE%A4794893584-ff69b4)](https://l2.drive.c4a15wh.cn/api/v3/slave/source/0/dXBsb2Fkcy8yMDIyLzA3LzI5LzFZNThpbGVzX0dyb3VwMTgtSW1hZ2UuanBn/18%E7%BE%A4.jpg?sign=rzrePnnOXo1s54x5GPCjGEKGkdH6jYaIKwHUxRjA23Y%3D%3A0)
+## 运行环境
+- Windows
+- Python3
 
-  
-## 简介
-> 因安装包文件过大，软件下载请前往[团子翻译器官网](https://translator.dango.cloud)进行下载，新版本不再发布github Releases
+## 安装方法
+0. 加速安装Python包  
+整个安装过程需要下载很多Python包。若在执行`pip install 包名称`时下载进度缓慢，可以使用国内的PyPi加速镜像。使用中科大镜像源加速的格式如下：
+```
+pip install 包名称 -i https://mirrors.ustc.edu.cn/pypi/web/simple
+```
 
+1. 打开`PowerShell`，创建一个Python虚拟环境  
+我们即将安装一系列的Python包，为了让这些包和外界环境隔离，建议使用虚拟环境。如下命令执行完毕后，会在Windows的`C:\Users\用户名\`目录下创建一个`app_env`文件夹，里面存放着一个独立的Python虚拟环境。
+```
+pip install virtualenv
+virtualenv ~/app_env
+cd ~/app_env
+```
 
-团子翻译器是一款生肉翻译软件，通过OCR识别屏幕特定范围内的文字，然后将识别到的文字调取各大厂的翻译，并输出翻译结果。
+2. 激活虚拟环境  
+激活成功后命令行会出现`(app_env)`字样。接下来Python包都会被装进该环境，与外部环境隔离。
+```
+./Scripts/activate
+```
 
-+ 搭载了离线OCR，项目地址：[DangoOCR](https://github.com/PantsuDango/DangoOCR) 
-+ 搭载了在线OCR，官网地址：[星河云OCR](https://cloud.stariver.org/auth/login.html)
-+ 实现自动模式，循环识别区域内的文本并翻译
-+ 配置了9种翻译源
-+ 账号系统，能够自动云端保存配置
+3. 克隆或下载该项目  
+把本项目的代码克隆或下载到当前虚拟环境目录；进入项目目录。
+```
+git clone --depth 1 https://github.com/NewComer00/Dango-Translator-tesseract
+cd Dango-Translator-tesseract
+```
 
+4. 安装Python依赖包  
+如果下载缓慢，记得按照第`0`步提示加速哟，在下述命令结尾加上`-i 镜像源链接`即可。
+```
+pip install -r ./requirements.txt
+```
 
-  
-## 安装版下载
+5. 运行程序  
+程序内有比较完整的新功能教程，如果出现问题欢迎提出Issue。
+```
+python ./app.py
+```
 
-- 群文件下载：[![群号](https://img.shields.io/badge/%E6%9C%80%E6%96%B0%E4%BA%A4%E6%B5%81%E7%BE%A4-18%E7%BE%A4794893584-ff69b4)](https://l2.drive.c4a15wh.cn/api/v3/slave/source/0/dXBsb2Fkcy8yMDIyLzA3LzI5LzFZNThpbGVzX0dyb3VwMTgtSW1hZ2UuanBn/18%E7%BE%A4.jpg?sign=rzrePnnOXo1s54x5GPCjGEKGkdH6jYaIKwHUxRjA23Y%3D%3A0)  
-- 官网下载：[下载地址](https://translator.dango.cloud)
+6. 退出虚拟环境  
+如需退出虚拟环境，直接在命令行输入`deactivate`即可。关闭`PowerShell`时也会自动退出虚拟环境。
 
-  
-## 更新日志
-
-#### 翻译器相关 
-
-[![最新版本](https://img.shields.io/badge/%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC-Ver4.2.7-ff69b4)]()
-[![更新时间](https://img.shields.io/badge/%E6%9B%B4%E6%96%B0%E6%97%B6%E9%97%B4-2022--07--11-ff69b4)]()
-
-+ 修复串台, 出现其他人的翻译内容问题（大概）；
-+ 修改了翻译出错时"我抽风啦"的说法；
-+ 更多更新日志：[查看](https://docs1.ayano.top/#/4.0/develop/changelog)  
-
-#### OCR相关
-
-[![最新版本](https://img.shields.io/badge/%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC-Ver1.2-ff69b4)]()
-[![更新时间](https://img.shields.io/badge/%E6%9B%B4%E6%96%B0%E6%97%B6%E9%97%B4-2021--08--19-ff69b4)]()
-
-+ 优化了识别速度和识别质量;
-+ 优化了对个别环境的适配问题
-
-+ 更多更新日志：[查看](https://docs1.ayano.top/#/4.0/develop/changelog)  
-
-  
-## 使用教程
-
-[翻译器使用文档教程](https://docs1.ayano.top)
-
-  
-## 原理说明
-
-![](https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/public/%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
-
-
-  
-## 更新计划
-
-#### 新增项
-
-- [x] 升级Ver4.0，全新的界面设计，更舒服的交互
-- [x] 加入DeepL 翻译
-- [ ] 离线OCR加入GPU模式
-- [x] 加入云服务在线OCR（收费）
-- [ ] 加入自定义OCR API接口功能，可以自由添加想要的OCR API接口（需要略懂开发）
-
-#### 优化项
-
-- [x] 优化公共翻译和网页翻译，提高翻译质量，降低抽风率
-- [ ] 离线OCR取消黑窗，加入简单的GUI界面，最小化从任务栏改为系统托盘
-- [x] 对屏幕缩放比例175%以上做适配
-- [x] 离线OCR加入竖排文本检测模式用于翻译生肉本
-
-#### 修复项
-
-- [x] 修复快捷键会失效的问题
-- [x] 修复手动模式下，程序概率卡死的问题
-- [ ] 修复多屏模式下，副屏幕无法截图的问题
-
-  
- ## 特别鸣谢
-
-[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)  离线OCR基于此框架搭建
-
-[QPT打包工具](https://github.com/GT-ZhangAcer/QPT)  离线OCR基于此工具打包
-
-[GT-Zhang](https://github.com/GT-ZhangAcer) 离线OCR开发过程给予了诸多帮助的大佬
-
-[C4a15Wh](https://c4a15wh.cn) 星团云在线OCR主力开发
-
-[Cypas_Nya](https://blog.ayano.top) 在线教程文档、团子云盘搭建者
-
-  
-## 软件预览
-
-#### 使用效果
-
-![](https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/public/%E4%BD%BF%E7%94%A8%E6%95%88%E6%9E%9C.png)
-
-#### 登录界面
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E7%99%BB%E5%BD%95.png" width="50%" height="50%">
-
-#### 主界面
-
-![](https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E4%B8%BB%E7%95%8C%E9%9D%A2.png)
-
-#### 设置界面
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/OCR%E8%AE%BE%E5%AE%9A.png" width="100%" height="100%">
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E7%BF%BB%E8%AF%91%E6%BA%90%E8%AE%BE%E5%AE%9A.png" width="100%" height="100%">
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E5%85%B6%E4%BB%96%E8%AE%BE%E5%AE%9A.png" width="100%" height="100%">
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E5%85%B3%E4%BA%8E.png" width="100%" height="100%">
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E5%B1%8F%E8%94%BD%E8%AF%8D%E8%AE%BE%E7%BD%AE.png" width="50%" height="50%">
-
-#### 支持作者
-<img src="https://github.com/PantsuDango/ImageHub/blob/master/DangoTranslate/Ver4.0/%E6%94%AF%E6%8C%81%E4%BD%9C%E8%80%85.png" width="100%" height="100%">
-
-
-## 开源协议
-
-本项目使用GNU LESSER GENERAL PUBLIC LICENSE(LGPL)开源协议
+## 再次运行
+首次安装完成后，如需再次运行，请打开`PowerShell`输入以下命令：
+```
+cd ~/app_env; ./Scripts/activate; python ./Dango-Translator-tesseract/app.py
+```

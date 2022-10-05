@@ -13,6 +13,7 @@ import utils.config
 
 import translator.ocr.baidu
 import translator.ocr.dango
+import translator.ocr.tesseract
 import translator.api
 
 
@@ -214,6 +215,7 @@ class TranslaterProcess(QThread) :
         # 翻译结果帖字
         if self.object.config["drawImageUse"] \
                 and not self.object.config["baiduOCR"] \
+                and not self.object.config["tesseractOCR"] \
                 and self.trans_type != "original" \
                 and self.object.ocr_result :
             ocr_result = self.object.ocr_result
@@ -252,7 +254,8 @@ class Translater(QThread) :
 
         # 隐藏范围框信号
         if self.object.config["drawImageUse"] \
-                and not self.object.config["baiduOCR"] :
+                and not self.object.config["baiduOCR"] \
+                and not self.object.config["tesseractOCR"] :
             self.hide_range_ui_sign.emit(False)
             # 确保已经隐藏了范围框才截图
             while True :
@@ -263,6 +266,7 @@ class Translater(QThread) :
         pix = screen.grabWindow(QApplication.desktop().winId(), x1, y1, x2-x1, y2-y1)
         if self.object.config["drawImageUse"] \
             and not self.object.config["baiduOCR"] \
+            and not self.object.config["tesseractOCR"] \
             and self.object.translation_ui.translate_mode :
             self.hide_range_ui_sign.emit(True)
         pix.save(IMAGE_PATH)
@@ -349,6 +353,9 @@ class Translater(QThread) :
         # 本地OCR
         elif self.object.config["offlineOCR"] :
             ocr_sign, original = translator.ocr.dango.offlineOCR(self.object)
+        # tesseractOCR
+        elif self.object.config["tesseractOCR"] :
+            ocr_sign, original = translator.ocr.tesseract.tesseractOCR(self.object.config, self.logger)
 
         else :
             original = "OCR错误: 未开启任何OCR, 请在[设置]-[OCR设定]内开启一种OCR, 不同OCR的区别请点击每种OCR对应的说明按钮了解"
