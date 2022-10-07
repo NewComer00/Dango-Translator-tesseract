@@ -15,6 +15,7 @@ import translator.ocr.baidu
 import translator.ocr.dango
 import translator.ocr.tesseract
 import translator.api
+import translator.reader
 
 
 IMAGE_PATH = "./config/image.jpg"
@@ -390,6 +391,17 @@ class Translater(QThread) :
         # 是否复制到剪贴板
         if self.object.config["showClipboard"] == "True":
             pyperclip.copy(original)
+
+        # 自动朗读
+        if self.object.config["readerUse"] == True :
+            utils.thread.createThread(
+                    translator.reader.readAloud,
+                    original,
+                    self.object.config["readerLangIdx"],
+                    self.object.config["readerSpeed"],
+                    self.object.config["readerVolume"] / 100
+                    )
+
         # 保存原文
         utils.config.saveOriginalHisTory(original)
         # 判断是否未开任何翻译源

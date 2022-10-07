@@ -1376,6 +1376,80 @@ class Settin(QMainWindow) :
         self.baidu_ocr_high_precision_switch.checkedChanged.connect(self.changeBaiduOcrHighPrecisionSwitch)
         self.baidu_ocr_high_precision_switch.setCursor(self.select_pixmap)
 
+        # ========== 自动朗读交互组件块 ==========
+        # 组件块的左上角基础位置
+        block_base = (20, 280)
+        # 自动朗读备注
+        label = QLabel(self.tab_4)
+        self.customSetGeometry(label, block_base[0], block_base[1], 150, 20)
+        label.setText("自动朗读")
+
+        # 自动朗读说明标签
+        button = QPushButton(self.tab_4)
+        self.customSetGeometry(button, block_base[0] + 60, block_base[1], 25, 20)
+        button.setStyleSheet("color: %s; font-size: 9pt; background: transparent;" % self.color_2)
+        button.setText("说明")
+        button.clicked.connect(lambda: self.showDesc("Reader"))
+        button.setCursor(self.question_pixmap)
+
+        # 自动朗读说明?号图标
+        button = QPushButton(qtawesome.icon("fa.question-circle", color=self.color_2), "", self.tab_4)
+        self.customSetIconSize(button, 20, 20)
+        self.customSetGeometry(button, block_base[0] + 85, block_base[1], 20, 20)
+        button.setStyleSheet("background: transparent;")
+        button.clicked.connect(lambda: self.showDesc("Reader"))
+        button.setCursor(self.question_pixmap)
+
+        # 自动朗读开关
+        self.reader_switch = ui.switch.SwitchOCR(self.tab_4, sign=self.reader_use, startX=(65-20)*self.rate)
+        self.customSetGeometry(self.reader_switch, block_base[0] , block_base[1] + 35, 65, 20)
+        self.reader_switch.checkedChanged.connect(self.readerSwitch)
+        self.reader_switch.setCursor(self.select_pixmap)
+
+        # 自动朗读语言标签
+        label = QLabel(self.tab_4)
+        self.customSetGeometry(label, block_base[0] + 85, block_base[1] + 35, 150, 20)
+        label.setText("自动朗读语言:")
+
+        # 自动朗读可用语言下拉框
+        self.reader_lang_comboBox = QComboBox(self.tab_4)
+        self.customSetGeometry(self.reader_lang_comboBox, block_base[0] + 175, block_base[1] + 35, 325, 20)
+        self.reader_lang_comboBox.setStyleSheet("QComboBox{color: %s}"%self.color_2)
+        self.reader_lang_comboBox.setCursor(self.select_pixmap)
+        self.reader_lang_comboBox.currentTextChanged.connect(self.changeReaderLang)
+        if self.reader_use == True:
+            self.reader_switch.checkedChanged.emit(True)
+
+        # 自动朗读语速标签
+        label = QLabel(self.tab_4)
+        self.customSetGeometry(label, block_base[0], block_base[1] + 70, 150, 20)
+        label.setText("语速(词/分钟):")
+
+        # 语速设定
+        self.reader_speed_spinBox = QDoubleSpinBox(self.tab_4)
+        self.customSetGeometry(self.reader_speed_spinBox, block_base[0] + 100, block_base[1] + 70, 45, 25)
+        self.reader_speed_spinBox.setDecimals(0)
+        self.reader_speed_spinBox.setMinimum(100)
+        self.reader_speed_spinBox.setMaximum(200)
+        self.reader_speed_spinBox.setSingleStep(10)
+        self.reader_speed_spinBox.setValue(self.reader_speed)
+        self.reader_speed_spinBox.setCursor(self.select_pixmap)
+
+        # 自动朗读音量标签
+        label = QLabel(self.tab_4)
+        self.customSetGeometry(label, block_base[0] + 180, block_base[1] + 70, 150, 20)
+        label.setText("音量(%):")
+
+        # 音量设定
+        self.reader_volume_spinBox = QDoubleSpinBox(self.tab_4)
+        self.customSetGeometry(self.reader_volume_spinBox, block_base[0] + 250, block_base[1] + 70, 45, 25)
+        self.reader_volume_spinBox.setDecimals(0)
+        self.reader_volume_spinBox.setMinimum(0)
+        self.reader_volume_spinBox.setMaximum(100)
+        self.reader_volume_spinBox.setSingleStep(5)
+        self.reader_volume_spinBox.setValue(self.reader_volume)
+        self.reader_volume_spinBox.setCursor(self.select_pixmap)
+        # ========== 交互组件块结束 ==========
 
     # 关于标签页
     def setTabFive(self) :
@@ -1758,6 +1832,12 @@ class Settin(QMainWindow) :
         self.image_refresh_score = self.object.config["imageSimilarity"]
         # 自动翻译文字刷新相似度
         self.text_refresh_score = self.object.config["textSimilarity"]
+        # 自动朗读开关
+        self.reader_use = self.object.config["readerUse"]
+        # 自动朗读语速
+        self.reader_speed = self.object.config["readerSpeed"]
+        # 自动朗读音量
+        self.reader_volume = self.object.config["readerVolume"]
 
         # 团子翻译器开源地址
         self.dango_translator_url = "https://github.com/PantsuDango/Dango-Translator"
@@ -2221,6 +2301,42 @@ class Settin(QMainWindow) :
         else:
             self.auto_login_use = False
 
+    # 自动朗读开关
+    def readerSwitch(self, checked) :
+
+        if checked :
+            self.getReaderLang()
+            self.reader_use = True
+        else:
+            self.reader_use = False
+
+    # 改变自动朗读的语言
+    def changeReaderLang(self) :
+        self.object.config["readerLangIdx"] = self.reader_lang_comboBox.currentIndex()
+        self.object.config["readerLangName"] = self.reader_lang_comboBox.currentText()
+
+    def getReaderLang(self) :
+        # 以下过程停止发送信号，防止触发changeReaderLang
+        self.reader_lang_comboBox.blockSignals(True)
+        self.reader_lang_comboBox.clear()
+
+        reader_lang_list = [i.name for i in translator.reader.getReadersInfo()]
+
+        self.reader_lang_comboBox.setMaxVisibleItems(len(reader_lang_list))
+        model = self.reader_lang_comboBox.model()
+        for lang in reader_lang_list :
+            entry = QStandardItem(lang)
+            model.appendRow(entry)
+
+        # 默认选择上一次的选项
+        if self.object.config["readerLangName"] in reader_lang_list :
+            self.reader_lang_comboBox.setCurrentText(
+                    self.object.config["readerLangName"])
+            self.object.config["readerLangIdx"] = \
+                    self.reader_lang_comboBox.currentIndex()
+
+        # 恢复发送信号
+        self.reader_lang_comboBox.blockSignals(False)
 
     # 重置开关状态
     def resetSwitch(self, switch_type) :
@@ -2631,6 +2747,20 @@ class Settin(QMainWindow) :
             self.desc_ui.setWindowTitle("贴字翻译说明")
             self.desc_ui.desc_text.append("\n开启后会将翻译结果直接贴在截图区域上, 目前仅支持于在线OCR")
 
+        # 自动朗读
+        elif message_type == "Reader":
+            self.desc_ui.setWindowTitle("自动朗读说明")
+            self.desc_ui.desc_text.append("\n<b>开启后，每次OCR完成识别，都会将识别到的原文自动朗读出来.</b>")
+            self.desc_ui.desc_text.append("对自动朗读设置的修改将在设置窗口关闭时自动保存, 在朗读下一句时生效.")
+            self.desc_ui.desc_text.append("<br><b>如何添加更多语言的语音包?</b>")
+            self.desc_ui.desc_text.append("对于Windows10系统来说, 打开Windows的“设置”, 搜索并进入“语音设置”. 向下滚动设置界面, 在“管理语音”中添加新的语音包即可.")
+            self.desc_ui.desc_text.append("重启本程序后, 会在“自动朗读语言”下拉框中找到新的语音包.")
+            self.desc_ui.desc_text.append("<br><b>在待翻译的文本更新后，朗读器不出声或仍在阅读之前的文本?</b>")
+            self.desc_ui.desc_text.append("这是程序预期中的行为. 当朗读器正在朗读文本时, 不会响应新的文本变化. 手动模式下, 请等待上一次朗读结束后再按一次翻译按钮.")
+            self.desc_ui.desc_text.append("P.S. 游戏时, 等朗读器朗读完毕后再切换下一句话, 可以让朗读体验更加连贯流畅哦~")
+            self.desc_ui.desc_text.append("<br><b>自动模式下，朗读器一直复读当前文字?</b>")
+            self.desc_ui.desc_text.append("这表示自动模式下, 翻译器对当前文字的翻译过于频繁, 请稍微降低“图像相似度”和“文字相似度”的阈值.")
+
         self.desc_ui.show()
 
 
@@ -2948,6 +3078,12 @@ class Settin(QMainWindow) :
         self.object.config["imageSimilarity"] = self.image_refresh_spinBox.value()
         # 自动翻译文字刷新相似度
         self.object.config["textSimilarity"] = self.text_refresh_spinBox.value()
+        # 自动朗读开关
+        self.object.config["readerUse"] = self.reader_use
+        # 自动朗读语速
+        self.object.config["readerSpeed"] = self.reader_speed_spinBox.value()
+        # 自动朗读音量
+        self.object.config["readerVolume"] = self.reader_volume_spinBox.value()
         # 自动登录开关
         self.object.yaml["auto_login"] = self.auto_login_use
         # 百度OCR高精度开关

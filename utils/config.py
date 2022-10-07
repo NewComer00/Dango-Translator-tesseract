@@ -115,7 +115,7 @@ def configConvert(object) :
     # tesseract OCR路径
     object.config["tesseractPath"] = object.config.get("tesseractPath", "")
     # tesseract OCR语言
-    object.config["tesseractLang"] = object.config.get("tesseractLang", "ru")
+    object.config["tesseractLang"] = object.config.get("tesseractLang", "rus")
 
     ################### 翻译设定 ###################
     # 字体颜色
@@ -220,6 +220,15 @@ def configConvert(object) :
     object.config["imageSimilarity"] = object.config.get("imageSimilarity", 98)
     # 文字相似度
     object.config["textSimilarity"] = object.config.get("textSimilarity", 90)
+    # 自动朗读开关
+    object.config["readerUse"] = object.config.get("readerUse", False)
+    # 自动朗读语言
+    object.config["readerLangName"] = object.config.get("readerLangName", "")
+    object.config["readerLangIdx"] = object.config.get("readerLangIdx", 0)
+    # 自动朗读语速
+    object.config["readerSpeed"] = object.config.get("readerSpeed", 150)
+    # 自动朗读音量
+    object.config["readerVolume"] = object.config.get("readerVolume", 100)
     # 范围坐标
     object.yaml["range"] = {"X1": 0, "Y1": 0, "X2": 0, "Y2": 0}
     # 显示消息栏
