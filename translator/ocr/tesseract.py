@@ -74,7 +74,7 @@ def tesseractOCR(config, logger, test=False) :
 
     except Exception as err :
         logger.error(format_exc())
-        return False, err
+        return False, "Tesseract OCR 出错: " + str(err)
 
     # 处理OCR结果的换行问题
     asian_lang_list = \
